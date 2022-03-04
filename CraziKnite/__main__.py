@@ -272,11 +272,16 @@ class Level(arcade.View):
 
         # Process left/right
         if self.right_pressed and not self.left_pressed:
+            self.player_sprite.SetState("Moving")
+            self.player_sprite.facing_direction = 0
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
         elif self.left_pressed and not self.right_pressed:
+            self.player_sprite.SetState("Moving")
+            self.player_sprite.facing_direction = 1
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
         else:
             self.player_sprite.change_x = 0
+            self.player_sprite.SetState("Idle")
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""

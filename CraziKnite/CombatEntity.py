@@ -61,7 +61,7 @@ class CombatEntity(arcade.Sprite):
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
             self.cur_animation = str(state)
-            self.cur_texture = 0
+            self.cur_texture = 1
             self.IntervalCounter = 0
     def update_animation(self,delta_time):
         at = self.cur_animation+str(self.cur_texture)
@@ -73,7 +73,7 @@ class CombatEntity(arcade.Sprite):
                 self.IntervalCounter = 0
         else:
             if(self.loop_animation):
-                self.cur_texture = 0
+                self.cur_texture = 1
                 if(at in self.Names):
                     self.texture = self.Textures[self.Names.index(at)][self.facing_direction]
                     self.IntervalCounter += 1
