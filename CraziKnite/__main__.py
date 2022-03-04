@@ -14,9 +14,8 @@ SCREEN_HEIGHT = 650
 SCREEN_TITLE = "CraziKnite"
 
 # Movement speed of player, in pixels per frame
-PLAYER_MOVEMENT_SPEED = 7
 GRAVITY = 1.5
-PLAYER_JUMP_SPEED = 30
+PLAYER_JUMP_SPEED = 10
 
 # How many pixels to keep as a minimum margin between the character
 # and the edge of the screen.
@@ -31,7 +30,7 @@ TILE_SCALING = 1
 RIGHT_FACING = 0
 LEFT_FACING = 1
 
-PLAYER_MOVEMENT_SPEED = 1
+PLAYER_MOVEMENT_SPEED = 1.5
 
 DATA_FILE = "gamedata"
 
@@ -160,12 +159,21 @@ class Level(arcade.View):
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
+
         #player
         self.player_sprite = EntityManager.EntityManager.get("CraziKnite")
         self.player_sprite.center_x = 10
         self.player_sprite.center_y = 1000
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
-        
+
+        main_path = "LevelData/"+self.LVname[:-5]
+        files = listdir(main_path)
+        c = 0
+        while(c<len(files)):
+            inst = EntityManager.get(files[c])
+            inst.Load(main_path+"/"+files[c])
+            c += 1
+
         # -- mobile
  #       Mobile_Layer = self.tile_map.object_lists[LAYER_NAME_MOBILE]
 #
