@@ -6,7 +6,6 @@ import os
 from os import listdir
 from os.path import isfile, join
 import arcade
-import MassInit
 import EntityManager
 
 # Constants
@@ -26,7 +25,7 @@ RIGHT_VIEWPORT_MARGIN = 200
 BOTTOM_VIEWPORT_MARGIN = 150
 TOP_VIEWPORT_MARGIN = 100
 
-TILE_SCALING = 0.1
+TILE_SCALING = 1
 
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
@@ -35,6 +34,13 @@ LEFT_FACING = 1
 PLAYER_MOVEMENT_SPEED = 1
 
 DATA_FILE = "gamedata"
+
+LAYER_NAME_BACKDROP = "BACKDROP"
+LAYER_NAME_IMMOBILE = "IMMOBILE"
+LAYER_NAME_CLIMBABLE = "CLIMBABLE"
+LAYER_NAME_MOBILE = "MOBILE"
+LAYER_NAME_NPC = "NPC"
+LAYER_NAME_PLAYER = "PLAYER"
 
 def load_texture_pair(filename):
     """
@@ -65,12 +71,12 @@ class Entity(arcade.Sprite):
             c += 1
 
         
-class Game(arcade.View):
+class Level(arcade.View):
     """
     Main application class.
     """
 
-    def __init__(self):
+    def __init__(self,name):
         """
         Initializer for the game
         """
@@ -107,17 +113,23 @@ class Game(arcade.View):
         self.jump_needs_reset = False
         self.KeyPresses = []
 
-        self.SceneData = []
-        self.SceneKeys = []
+
+        self.LVname = name
+        self.MAP = name
     def setup(self):
+        self.up_pressed = False
+        self.down_pressed = False
+        self.right_pressed = False
+        self.left_pressed = False
         """Set up the game here. Call this function to restart the game."""
 
         # Setup the Cameras
-        self.camera = arcade.Camera(self.width, self.height)
-        self.gui_camera = arcade.Camera(self.width, self.height)
+        self.camera = arcade.Camera(self.window.width, self.window.height)
+        self.gui_camera = arcade.Camera(self.window.width, self.window.height)
 
         # Map name
-        map_name = ":resources:tiled_maps/map_with_ladders.json"
+        self.Data = "LVdata/"+self.LVname
+        map_name = "Maps/"+self.LVname
 
         # Layer Specific Options for the Tilemap
         layer_options = {
@@ -130,15 +142,15 @@ class Game(arcade.View):
             LAYER_NAME_CLIMBABLE: {
                 "use_spatial_hash": True,
             },
-            LAYER_NAME_MOBILE: {
-                "use_spatial_hash": False,
-            },
-            LAYER_NAME_NPC: {
-                "use_spatial_hash": False,
-            },
-            LAYER_NAME_PLAYER: {
-                "use_spatial_hash": False,
-            },
+         #   LAYER_NAME_MOBILE: {
+          #      "use_spatial_hash": False,
+          #  },
+           # LAYER_NAME_NPC: {
+           #     "use_spatial_hash": False,
+           ## },
+           # LAYER_NAME_PLAYER: {
+           #3     "use_spatial_hash": False,
+           # },
         }
 
         # Load in TileMap
@@ -149,32 +161,40 @@ class Game(arcade.View):
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
 
         #player
-        self.player_sprite = EntityManager.get("CraziKnite")
+        self.player_sprite = EntityManager.EntityManager.get("CraziKnite")
+        self.player_sprite.center_x = 10
+        self.player_sprite.center_y = 1000
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
         
         # -- mobile
-        Mobile_Layer = self.tile_map.object_lists[LAYER_NAME_MOBILE]
-
-        for my_object in Mobile_Layer:
-            cartesian = self.tile_map.get_cartesian(
-                my_object.shape[0], my_object.shape[1]
-            )
-            obj_type = my_object.properties["type"]
-            obj = EntityManager.get(obj_type)
+ #       Mobile_Layer = self.tile_map.object_lists[LAYER_NAME_MOBILE]
+#
+  #      for my_object in Mobile_Layer:
+   #         cartesian = self.tile_map.get_cartesian(
+    #            my_object.shape[0], my_object.shape[1]
+#            )
+ #           obj_type = my_object.properties["type"]
+ #           obj = EntityManager.EntityManager.get(obj_type)
+  #          obj.init()
+  #          obj.center_x = cartesian[0]
+  #          obj.center_y = cartesian[1]
             
-            self.scene.add_sprite(LAYER_NAME_MOBILE, obj)
+  #          self.scene.add_sprite(LAYER_NAME_MOBILE, obj)
 
         # -- NPC
-        NPC_Layer = self.tile_map.object_lists[LAYER_NAME_NPC]
-
-        for my_object in NPC:
-            cartesian = self.tile_map.get_cartesian(
-                my_object.shape[0], my_object.shape[1]
-            )
-            obj_type = my_object.properties["type"]
-            obj = EntityManager.get(obj_type)
+ #       NPC_Layer = self.tile_map.object_lists[LAYER_NAME_NPC]
+#
+ #       for my_object in NPC:
+  #          cartesian = self.tile_map.get_cartesian(
+   #             my_object.shape[0], my_object.shape[1]
+   #         )
+   #         obj_type = my_object.properties["type"]
+   #         obj = EntityManager.EntityManager.get(obj_type)
+    #        obj.init()
+    #        obj.center_x = cartesian[0]
+   #         obj.center_y = cartesian[1]
             
-            self.scene.add_sprite(LAYER_NAME_NPC, obj)
+    #        self.scene.add_sprite(LAYER_NAME_NPC, obj)
 
 
 
@@ -186,7 +206,7 @@ class Game(arcade.View):
         # Create the 'physics engine'
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
-            platforms=self.scene[LAYER_MOBILE],
+            platforms=self.scene[LAYER_NAME_MOBILE],
             gravity_constant=GRAVITY,
             ladders=self.scene[LAYER_NAME_CLIMBABLE],
             walls=self.scene[LAYER_NAME_IMMOBILE]
@@ -228,6 +248,7 @@ class Game(arcade.View):
                 and not self.jump_needs_reset
             ):
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                print("jump!")
                 self.jump_needs_reset = True
                  #arcade.play_sound(self.jump_sound)
         elif self.down_pressed and not self.up_pressed:
@@ -251,7 +272,7 @@ class Game(arcade.View):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
-
+        print("keypress!!!")
         if key == arcade.key.UP or key == arcade.key.W:
             self.up_pressed = True
         elif key == arcade.key.DOWN or key == arcade.key.S:
@@ -261,15 +282,15 @@ class Game(arcade.View):
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.right_pressed = True
             
-        if key == arcade.key.z:
+        if key == arcade.key.Z:
             self.KeyPresses.append("z")
-        elif key == arcade.key.x:
+        elif key == arcade.key.X:
             self.KeyPresses.append("x")
-        elif key == arcade.key.c:
+        elif key == arcade.key.C:
             self.KeyPresses.append("c")
-        elif key == arcade.key.a:
+        elif key == arcade.key.A:
             self.KeyPresses.append("a")
-        elif key == arcade.key.s:
+        elif key == arcade.key.S:
             self.KeyPresses.append("s")
         
 
@@ -288,15 +309,15 @@ class Game(arcade.View):
         elif key == arcade.key.RIGHT or key == arcade.key.D:
             self.right_pressed = False
 
-        elif key == arcade.key.z:
+        elif key == arcade.key.Z:
             self.KeyPresses.pop(self.KeyPresses.index("z"))
-        elif key == arcade.key.x:
+        elif key == arcade.key.X:
             self.KeyPresses.pop(self.KeyPresses.index("x"))
-        elif key == arcade.key.s:
+        elif key == arcade.key.S:
             self.KeyPresses.pop(self.KeyPresses.index("s"))
-        elif key == arcade.key.c:
+        elif key == arcade.key.C:
             self.KeyPresses.pop(self.KeyPresses.index("c"))
-        elif key == arcade.key.a:
+        elif key == arcade.key.A:
             self.KeyPresses.pop(self.KeyPresses.index("a"))
 
         self.process_keychange()
@@ -338,6 +359,9 @@ class Game(arcade.View):
             delta_time,
             [
                 LAYER_NAME_BACKDROP,
+                LAYER_NAME_NPC,
+                LAYER_NAME_MOBILE,
+                LAYER_NAME_PLAYER
             ],
         )
 
@@ -347,11 +371,11 @@ class Game(arcade.View):
         )
 
         # See if the enemy hit a boundary and needs to reverse direction.
-        for npc in self.scene[LAYER_NAME_NPC]:
-            npc.update(self)
-        for mobile in self.scene[LAYER_NAME_MOBILE]:
-            mobile.update(self)
-
+    #    for npc in self.scene[LAYER_NAME_NPC]:
+    ##        npc.update(self)
+    #    for mobile in self.scene[LAYER_NAME_MOBILE]:
+    #        mobile.update(self)
+        self.player_sprite.Update(self)
         # Position the camera
         self.center_camera_to_player()
 
@@ -361,11 +385,13 @@ def main():
     # init window
     window = arcade.Window(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 
-    
-    data =
+    f = open(DATA_FILE,mode='r')
+    data = f.read()
+    f.close()
     #init a scene
-    scene = Game()
+    scene = Level(data)
     #setup scene
+    window.show_view(scene)
     scene.setup()
     arcade.run()
 
