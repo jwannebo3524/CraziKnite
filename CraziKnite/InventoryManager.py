@@ -15,6 +15,8 @@ class InventoryManager:
     self.ID = 0
     self.Open = False
     self.MaxItemsInTab = 100
+    self.ThrowYVel = 0.1
+    self.ThrowXVel = 4;
     #[Name,DataFile]
   def Save(self):
     f = open("InventoryData")
@@ -101,16 +103,39 @@ class InventoryManager:
           c2 += 99999999
           found = True
         c2 += 1
-     if(c2<100 and not found):
+     if(c2<self.MaxItemsInTab and not found):
         found = True
         k = c
         k2 = c2
         c += 99999999999999
         c2 += 999999999
-   if(found = False):
+    if(found = False):
      self.Inventories.append([])
      self.Inventories[-1].append([name,DataFile])
-   else:
+    else:
      self.Inventories[k][k2] = [name,DataFile]
+  def Throw(self,level,z):
+    self.Equiped[z].Attach(None)
+    self.Equiped[z].change_y = self.ThrowYVel
+    dir = level.player_sprite.facing_direction #check this
+    normdir = (dir*2)-1
+    self.Equiped[z].change_x = self.ThrowXVel*normdir
+    self.EquipedIcon[z] = None
+    self.Equiped[z] = None
+  def FlipRight(self,level):
+    if(self.ID+1<len(self.Inventories)):
+      self.ID += 1
+      self.CloseInventory(level)
+      self.LoadTab(self.ID)
+      self.DisplayInventory(level)
+  def FlipLeft(self,level):
+    if(self.ID-1>=0):
+      self.ID -= 1
+      self.CloseInventory(level)
+      self.LoadTab(self.ID)
+      self.DisplayInventory(level)
+  def Open(self,level):
+    self.LoadTab(self.ID)
+    self.DisplayInventory(level)
     
     
