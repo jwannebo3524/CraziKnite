@@ -14,6 +14,7 @@ class InventoryManager:
     self.EquipedIcons = []
     self.ID = 0
     self.Open = False
+    self.MaxItemsInTab = 100
     #[Name,DataFile]
   def Save(self):
     f = open("InventoryData")
@@ -83,6 +84,33 @@ class InventoryManager:
     else:
       self.ItemIcons[z] = None
       self.ItemEntities[z] = None
-      
+  def PickUp(self,level,item): # item entity
+    DataFile = item.GAMEFILEID
+    name = item.Name #check this.
+    c = 0
+    k = 0
+    k2 = 0
+    found = False
+    while(c<len(self.Inventories)): #find empty slot
+      c2 = 0
+      while(c2<len(self.Inventories[c])):
+        if(not self.Inventories[c][c2]):
+          k = c
+          k2 = c2
+          c += 99999999999999
+          c2 += 99999999
+          found = True
+        c2 += 1
+     if(c2<100 and not found):
+        found = True
+        k = c
+        k2 = c2
+        c += 99999999999999
+        c2 += 999999999
+   if(found = False):
+     self.Inventories.append([])
+     self.Inventories[-1].append([name,DataFile])
+   else:
+     self.Inventories[k][k2] = [name,DataFile]
     
     
