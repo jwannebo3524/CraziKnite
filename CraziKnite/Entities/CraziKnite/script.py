@@ -12,7 +12,7 @@ def load_texture_pair(filename):
     ]
 
 class entity(CombatEntity.CombatEntity):
-    def __init__(self,name,scale = 1):
-        super().__init__(name)
+    def __init__(self,name,scale = 2):
+        super().__init__(name,scale = scale)
 
         

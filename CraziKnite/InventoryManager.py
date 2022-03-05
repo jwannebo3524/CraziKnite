@@ -50,7 +50,8 @@ class InventoryManager:
         self.ItemIcons[c].Unfreeze(level)
       except:
         donothingvar = 0
-      self.InventorySlots[c].Unfreeze(level)
+    #  self.InventorySlots[c].Do("Show")
+    #  self.InventorySlots[c].Unfreeze(level)
       c += 1
   def CloseInventory(self,level):
     self.Open = False
@@ -58,18 +59,35 @@ class InventoryManager:
     while(c<len(self.ItemIcons)):
       if(self.ItemIcons[c]):
         self.ItemIcons[c].Freeze()
-      self.InventorySlots[c].Freeze()
+    #  self.InventorySlots[c].Freeze()
+    #  self.InventorySlots[c].Do("Hide")
       c += 1
   def DisplayEquipped(self,level):
     c = 0 
     while(c<len(self.EquipedIcons)):
       try:
-        self.EquipedIcons[c].Attach(self.EquipedSlots[c])
         self.EquipedIcons[c].Unfreeze(level)
         self.EquipedItems[c].Unfreeze(level)
       except:
         donothingvar = 0
-      self.EquipedSlots.Unfreeze(level)
+      #self.EquipedSlots[c].Do("Show")
+ #     self.EquipedSlots.Unfreeze(level)
+      c += 1
+  def UpdateLocs(self,level):
+    x = level.player_sprite.center_x
+    y = level.player_sprite.center_y
+    c = 0
+    while(c<len(self.EquipedIcons)):
+      self.EquipedIcons[c].center_x = self.EquipedSlots[c][0]+x
+      self.EquipedIcons[c].center_y = self.EquipedSlots[c][1]+y
+      c += 1
+  def UpdateLocs2(self,level):
+    x = level.player_sprite.center_x
+    y = level.player_sprite.center_y
+    c = 0
+    while(c<len(self.EquipedIcons)):
+      self.ItemIcons[c].center_x = self.ItemSlots[c][0]+x
+      self.ItemIcons[c].center_y = self.ItemSlots[c][1]+y
       c += 1
   def Equip(self,level,z,to): #allows equiping blank spaces. Inventory must be open.
     icon = None
@@ -130,8 +148,8 @@ class InventoryManager:
   def Throw(self,level,z):
     self.Equiped[z].Attach(None)
     self.Equiped[z].change_y = self.ThrowYVel
-    dir = level.player_sprite.facing_direction #check this
-    normdir = (dir*2)-1
+    dire = level.player_sprite.facing_direction #check this
+    normdir = (dire*2)-1
     self.Equiped[z].change_x = self.ThrowXVel*normdir
     self.EquipedIcon[z] = None
     self.Equiped[z] = None
@@ -151,19 +169,17 @@ class InventoryManager:
     self.LoadTab(self.ID)
     self.DisplayInventory(level)
   def SetupSlots(self):
-    c4 = 999
+    zs = arcade.SpriteList()
     c = -5
     while(c<5):
       c2 = -5
       while(c2<5):
-        self.InventorySlots.append(ItemManager.ItemManager.get("ItemSlot"))
-        self.InventorySlots[-1].X = c*10
-        self.InventorySlots[-1].Y = c2*10
-        self.InventorySlots[-1].center_x = c*10
-        self.InventorySlots[-1].center_y = c2*10
-        self.InventorySlots[-1].HASHID = c4
-        c4 += 1
+        self.InventorySlots.append([c,c2])
         c2 += 1
+      c += 1
+    c = 0
+    while(c<10):
+      self.EquipedSlots.append([100,c])
       c += 1
     
     

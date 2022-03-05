@@ -149,11 +149,11 @@ class Item(arcade.Sprite):
                 self.cur_texture = 0
                 self.IntervalCounter = 0
                 self.cur_animation = "Idle"
-    def __eq__(self,other):
-        try:
-            return self.HASHID==other.HASHID
-        except:
-            return False
-    def __hash__(self):
-        return self.HASHID
+  #  def __eq__(self,other):
+  #      try:
+  #          return self.HASHID==other.HASHID
+   #     except:
+    #        return False
+  #  def __hash__(self):
+   #     return self.HASHID
     

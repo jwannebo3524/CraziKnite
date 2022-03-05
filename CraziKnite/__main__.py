@@ -10,12 +10,12 @@ import EntityManager
 import InventoryManager
 
 # Constants
-SCREEN_WIDTH = 1000
-SCREEN_HEIGHT = 650
+SCREEN_WIDTH = 1500
+SCREEN_HEIGHT = 1000
 SCREEN_TITLE = "CraziKnite"
 
 # Movement speed of player, in pixels per frame
-GRAVITY = 1.5
+GRAVITY = 0.5
 PLAYER_JUMP_SPEED = 10
 
 # How many pixels to keep as a minimum margin between the character
@@ -25,7 +25,7 @@ RIGHT_VIEWPORT_MARGIN = 200
 BOTTOM_VIEWPORT_MARGIN = 150
 TOP_VIEWPORT_MARGIN = 100
 
-TILE_SCALING = 1
+TILE_SCALING = 2
 
 # Constants used to track if the player is facing left or right
 RIGHT_FACING = 0
@@ -399,8 +399,8 @@ class Level(arcade.View):
         # Update moving platforms, enemies, and bullets
         self.scene.update(
             [LAYER_NAME_NPC, LAYER_NAME_PLAYER, LAYER_NAME_MOBILE]
-        )
-
+        )    
+          #  self.scene.update(self.INVEN)
         # See if the enemy hit a boundary and needs to reverse direction.
     #    for npc in self.scene[LAYER_NAME_NPC]:
     ##        npc.update(self)
@@ -409,6 +409,7 @@ class Level(arcade.View):
         self.player_sprite.Update(self)
         # Position the camera
         self.center_camera_to_player()
+        
 
 
 def main():
