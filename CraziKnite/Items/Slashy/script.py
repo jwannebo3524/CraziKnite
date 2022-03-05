@@ -4,12 +4,14 @@ class item(ItemEntity.Item):
     def __init__(self,Name):
         #print("beeep")
         super().__init__(Name,scale = 1)
-        self.X = (col-5)*10
-        self.Y = (row-5)*10
+        self.Do("Grounded")
+        self.loop_animation = True
     def Active(self,level):
-        if(self.Attatched = level.player_sprite):
+        if(self.Attatched == level.player_sprite):
             if('z' in level.KeyPresses):
                 self.Do("Slash")
+                self.loop_animation = False
         else:
-            self.Do("Flat")
+            self.Do("Grounded")
+            self.loop_animation = True
                 

@@ -57,10 +57,12 @@ class Item(arcade.Sprite):
     def SetAttatched(self,attached):
         self.Attached = attached
     def update(self): 
-        if(self.Attached.RadXMod):
+        try:
             d = (self.Attached.facing_direction-0.5)*2
             self.center_x = self.Attached.center_x + (d*self.offsetX*self.Attatched.RadXMod)
             self.center_y = self.Attached.center_y + (d*self.offsetY*self.Attatched.RadYMod)
+        except:
+            donothingvar = 0
         self.Passive()
     def Update(self,level):
         if(EntityCollisionTrigger):

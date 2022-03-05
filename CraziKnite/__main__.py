@@ -8,6 +8,7 @@ from os.path import isfile, join
 import arcade
 import EntityManager
 import InventoryManager
+import ItemManager
 
 # Constants
 SCREEN_WIDTH = 1500
@@ -169,6 +170,11 @@ class Level(arcade.View):
         self.player_sprite.center_y = 1000
         self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
 
+        slashy = ItemManager.ItemManager.get("Slashy")
+        slashy.center_x = 100
+        slashy.center_y = 1100
+        print('YEEE')
+        self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
         main_path = "LevelData/"+self.LVname[:-5]
         files = listdir(main_path)
         c = 0
@@ -215,6 +221,7 @@ class Level(arcade.View):
             arcade.set_background_color(self.tile_map.background_color)
 
         # Create the 'physics engine'
+        print("BEEEE")
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
             platforms=self.scene[LAYER_NAME_MOBILE],
@@ -222,6 +229,7 @@ class Level(arcade.View):
             ladders=self.scene[LAYER_NAME_CLIMBABLE],
             walls=self.scene[LAYER_NAME_IMMOBILE]
         )
+        print("ZEEEEE")
 
     def on_draw(self):
         """Render the screen."""
@@ -294,8 +302,9 @@ class Level(arcade.View):
             self.INVENTORY.OpenInventory(self)
             self.INV_OPEN = True
         else:
-            self.INVENTORY.CloseInventory(self)
-            self.INV_OPEN = False
+            if(self.INV_OPEN):
+                self.INVENTORY.CloseInventory(self)
+                self.INV_OPEN = False
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -369,6 +378,7 @@ class Level(arcade.View):
     def on_update(self, delta_time):
         """Movement and game logic"""
 
+        print("PREEEE")
         # Move the player with the physics engine
         self.physics_engine.update()
 
@@ -386,6 +396,7 @@ class Level(arcade.View):
             self.process_keychange()
 
                # Update Animations
+        print("LEEEEEEE")
         self.scene.update_animation(
             delta_time,
             [
@@ -395,11 +406,13 @@ class Level(arcade.View):
                 LAYER_NAME_PLAYER
             ],
         )
+        print("KEEEEEEEE")
 
         # Update moving platforms, enemies, and bullets
         self.scene.update(
             [LAYER_NAME_NPC, LAYER_NAME_PLAYER, LAYER_NAME_MOBILE]
-        )    
+        )
+        print("XEEEEEEE")
           #  self.scene.update(self.INVEN)
         # See if the enemy hit a boundary and needs to reverse direction.
     #    for npc in self.scene[LAYER_NAME_NPC]:
