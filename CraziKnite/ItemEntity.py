@@ -2,6 +2,7 @@ import arcade
 from os import listdir
 from os.path import isfile, join
 import LevelManager
+import random
 #item
 def load_texture_pair(filename):
     """
@@ -24,7 +25,7 @@ class Item(arcade.Sprite):
         # Used for image sequences
         self.cur_texture = 0
         self.scale = scale
-
+        self.NAME = name
         main_path = "Items/"+name+"/t"
         onlyfiles = listdir(main_path)
         c = 0
@@ -48,8 +49,11 @@ class Item(arcade.Sprite):
         self.DATA = []
         self.InLevel = ""
         self.GAMEFILEID = ""
+        self.HASHID = 0
     def Freeze(self):
         self.remove_from_sprite_lists()
+    def Unfreeze(self,level):
+        level.scene.add_sprite("MOBILE", self)
     def SetAttatched(self,attached):
         self.Attached = attached
     def update(self): 
@@ -103,14 +107,18 @@ class Item(arcade.Sprite):
         f.write(str(self.center_x)+"?!?END...SYMBOL!?!"+str(self.center_y)+"?!?END...SYMBOL!?!"+str(self.DATA))
         f.close()
     def Load(self,file):
-        f = open(file,mode='w')
-        z = f.read()
-        f.close()
-        array = "?!?END...SYMBOL!?!".split(z)
-        self.center_x = array[0]
-        self.center_y = array[1]
-        k = array[2][1:-1]
-        self.DATA = ",".split(k)
+        try:
+            f = open(file,mode='r')
+            z = f.read()
+            f.close()
+            array = "?!?END...SYMBOL!?!".split(z)
+            self.center_x = array[0]
+            self.center_y = array[1]
+            k = array[2][1:-1]
+            self.DATA = ",".split(k)
+        except:
+            print("rawr")
+        self.GAMEFILEID = file
     def MoveScenes(self,From,To):
         LevelManager.Move(self,From,To)
         
@@ -141,4 +149,11 @@ class Item(arcade.Sprite):
                 self.cur_texture = 0
                 self.IntervalCounter = 0
                 self.cur_animation = "Idle"
+    def __eq__(self,other):
+        try:
+            return self.HASHID==other.HASHID
+        except:
+            return False
+    def __hash__(self):
+        return self.HASHID
     

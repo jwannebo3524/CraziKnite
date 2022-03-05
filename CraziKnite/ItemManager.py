@@ -1,7 +1,7 @@
 import arcade
 import importlib
 
-class ItemyManager:
+class ItemManager:
     def get(Name):
         try:
           print("Items."+Name)

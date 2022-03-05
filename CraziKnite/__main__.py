@@ -7,6 +7,7 @@ from os import listdir
 from os.path import isfile, join
 import arcade
 import EntityManager
+import InventoryManager
 
 # Constants
 SCREEN_WIDTH = 1000
@@ -116,6 +117,8 @@ class Level(arcade.View):
         self.LVname = name
         self.MAP = name
     def setup(self):
+        self.INVENTORY = InventoryManager.InventoryManager()
+        self.INVENTORY.SetupSlots()
         self.up_pressed = False
         self.down_pressed = False
         self.right_pressed = False
@@ -141,15 +144,15 @@ class Level(arcade.View):
             LAYER_NAME_CLIMBABLE: {
                 "use_spatial_hash": True,
             },
-         #   LAYER_NAME_MOBILE: {
-          #      "use_spatial_hash": False,
-          #  },
-           # LAYER_NAME_NPC: {
-           #     "use_spatial_hash": False,
-           ## },
-           # LAYER_NAME_PLAYER: {
-           #3     "use_spatial_hash": False,
-           # },
+            LAYER_NAME_MOBILE: {
+                "use_spatial_hash": False,
+            },
+            LAYER_NAME_NPC: {
+                "use_spatial_hash": False,
+            },
+            LAYER_NAME_PLAYER: {
+                "use_spatial_hash": False,
+            },
         }
 
         # Load in TileMap
@@ -248,7 +251,7 @@ class Level(arcade.View):
         Called when we change a key up/down or we move on/off a ladder.
         """
         # Process up/down
-        if self.up_pressed and not self.down_pressed:
+        if self.up_pressed and not self.down_pressed and not self.INV_OPEN:
             if self.physics_engine.is_on_ladder():
                 self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
             elif (
@@ -259,7 +262,7 @@ class Level(arcade.View):
                 print("jump!")
                 self.jump_needs_reset = True
                  #arcade.play_sound(self.jump_sound)
-        elif self.down_pressed and not self.up_pressed:
+        elif self.down_pressed and not self.up_pressed and not self.INV_OPEN:
             if self.physics_engine.is_on_ladder():
                 self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
 
@@ -269,13 +272,16 @@ class Level(arcade.View):
                 self.player_sprite.change_y = 0
             elif self.up_pressed and self.down_pressed:
                 self.player_sprite.change_y = 0
-
+        if self.right_pressed and self.INV_OPEN:
+            self.INVENTORY.FlipRight(self)
+        if self.left_pressed and self.INV_OPEN:
+            self.INVENTORY.FlipLeft(self)
         # Process left/right
-        if self.right_pressed and not self.left_pressed:
+        if self.right_pressed and not self.left_pressed and not self.INV_OPEN:
             self.player_sprite.SetState("Moving")
             self.player_sprite.facing_direction = 0
             self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
-        elif self.left_pressed and not self.right_pressed:
+        elif self.left_pressed and not self.right_pressed and not self.INV_OPEN:
             self.player_sprite.SetState("Moving")
             self.player_sprite.facing_direction = 1
             self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
@@ -283,16 +289,24 @@ class Level(arcade.View):
             self.player_sprite.change_x = 0
             self.player_sprite.SetState("Idle")
 
+        #_______________________________
+        if ('e' in self.KeyPresses):
+            self.INVENTORY.OpenInventory(self)
+            self.INV_OPEN = True
+        else:
+            self.INVENTORY.CloseInventory(self)
+            self.INV_OPEN = False
+
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
         print("keypress!!!")
-        if key == arcade.key.UP or key == arcade.key.W:
+        if key == arcade.key.UP:# or key == arcade.key.W:
             self.up_pressed = True
-        elif key == arcade.key.DOWN or key == arcade.key.S:
+        elif key == arcade.key.DOWN:# or key == arcade.key.S:
             self.down_pressed = True
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        elif key == arcade.key.LEFT:# or key == arcade.key.A:
             self.left_pressed = True
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
+        elif key == arcade.key.RIGHT:# or key == arcade.key.D:
             self.right_pressed = True
             
         if key == arcade.key.Z:
@@ -305,6 +319,8 @@ class Level(arcade.View):
             self.KeyPresses.append("a")
         elif key == arcade.key.S:
             self.KeyPresses.append("s")
+        elif key == arcade.key.E:
+            self.KeyPresses.append("e")
         
 
         self.process_keychange()
@@ -312,14 +328,14 @@ class Level(arcade.View):
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
 
-        if key == arcade.key.UP or key == arcade.key.W:
+        if key == arcade.key.UP:# or key == arcade.key.W:
             self.up_pressed = False
             self.jump_needs_reset = False
-        elif key == arcade.key.DOWN or key == arcade.key.S:
+        elif key == arcade.key.DOWN:# or key == arcade.key.S:
             self.down_pressed = False
-        elif key == arcade.key.LEFT or key == arcade.key.A:
+        elif key == arcade.key.LEFT:# or key == arcade.key.A:
             self.left_pressed = False
-        elif key == arcade.key.RIGHT or key == arcade.key.D:
+        elif key == arcade.key.RIGHT:# or key == arcade.key.D:
             self.right_pressed = False
 
         elif key == arcade.key.Z:
@@ -332,6 +348,8 @@ class Level(arcade.View):
             self.KeyPresses.pop(self.KeyPresses.index("c"))
         elif key == arcade.key.A:
             self.KeyPresses.pop(self.KeyPresses.index("a"))
+        elif key == arcade.key.E:
+            self.KeyPresses.pop(self.KeyPresses.index("e"))
 
         self.process_keychange()
 
