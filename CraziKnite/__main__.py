@@ -120,6 +120,7 @@ class Level(arcade.View):
     def setup(self):
         self.INVENTORY = InventoryManager.InventoryManager()
         self.INVENTORY.SetupSlots()
+        self.INV_OPEN = False
         self.up_pressed = False
         self.down_pressed = False
         self.right_pressed = False
@@ -174,14 +175,14 @@ class Level(arcade.View):
         slashy.center_x = 100
         slashy.center_y = 1100
         print('YEEE')
-        self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
+        #self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
         main_path = "LevelData/"+self.LVname[:-5]
-        files = listdir(main_path)
-        c = 0
-        while(c<len(files)):
-            inst = EntityManager.get(files[c])
-            inst.Load(main_path+"/"+files[c])
-            c += 1
+     #   files = listdir(main_path)
+       # c = 0
+      #  while(c<len(files)):
+       #     inst = EntityManager.get(files[c])
+       #     inst.Load(main_path+"/"+files[c])
+        #    c += 1
 
         # -- mobile
  #       Mobile_Layer = self.tile_map.object_lists[LAYER_NAME_MOBILE]
