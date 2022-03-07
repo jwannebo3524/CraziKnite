@@ -37,7 +37,7 @@ class Item(arcade.Sprite):
             c += 1
         print(self.Names)
         self.texture = self.Textures[facing][self.facing_direction]
-        self.attatched = None
+        self.Attatched = None
         self.offsetX = 0
         self.offsetY = 0
         self.EntityCollisionTrigger = False
@@ -53,7 +53,8 @@ class Item(arcade.Sprite):
     def Freeze(self):
         self.remove_from_sprite_lists()
     def Unfreeze(self,level):
-        level.scene.add_sprite("MOBILE", self)
+        level.mobile_list.append(self)
+        self.LVL = level
     def SetAttatched(self,attached):
         self.Attached = attached
     def update(self): 
@@ -64,23 +65,23 @@ class Item(arcade.Sprite):
         except:
             donothingvar = 0
         self.Passive()
+        self.Update(self.LVL)
     def Update(self,level):
-        if(EntityCollisionTrigger):
+        if(self.EntityCollisionTrigger):
             self.EntityCollisions = arcade.check_for_collision_with_lists(
                 self,
                 [
-                    level.scene[LAYER_NAME_NPC],
-                    level.scene[LAYER_NAME_PLAYER],
+                    level.scene["NPC"],
+                    level.scene["PLAYER"],
                 ],
             )
         else:
             self.EntityCollisions = []
-        if(ObjectCollisionTrigger):
+        if(self.ObjectCollisionTrigger):
             self.ObjectCollisions = arcade.check_for_collision_with_lists(
                 self,
                 [
-                    level.scene[LAYER_NAME_NPC],
-                    level.scene[LAYER_NAME_PLAYER],
+                    level.scene["MOBILE"],
                 ],
             )
         else:
@@ -91,7 +92,7 @@ class Item(arcade.Sprite):
         if(len(self.ObjectCollisions)>0):
             for z in self.ObjectCollisions:
                 self.OnObjectCollision(z)
-        self.Active(self,level)
+        self.Active(level)
     def Passive(self): 
         donothingvar = 0
     def Do(self,action):

@@ -55,8 +55,14 @@ class CombatEntity(arcade.Sprite):
         self.center_x = 0
         self.center_y = 0
         self.GAMEFILEID = ""
+        self.EntityCollisionTrigger = False
+        self.ObjectCollisionTrigger = False
+        self.EntityCollisions = []
+        self.ObjectCollisions = []
     def Freeze(self):
         self.remove_from_sprite_lists()
+    def Unfreeze(self,level):
+        level.scene.add_sprite("NPC", self)
     #Animation:
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
@@ -84,7 +90,35 @@ class CombatEntity(arcade.Sprite):
                 self.cur_texture = 0
                 self.IntervalCounter = 0
                 self.cur_animation = "Idle"
-                
+    def Update(self,level):
+        if(self.EntityCollisionTrigger):
+            self.EntityCollisions = arcade.check_for_collision_with_lists(
+                self,
+                [
+                    level.scene["NPC"],
+                    level.scene["PLAYER"],
+                ],
+            )
+        else:
+            self.EntityCollisions = []
+        if(self.ObjectCollisionTrigger):
+            self.ObjectCollisions = arcade.check_for_collision_with_lists(
+                self,
+                [
+                    level.scene["MOBILE"],
+                ],
+            )
+        else:
+            self.ObjectCollisions = []
+        if(len(self.EntityCollisions)>0):
+            for z in self.EntityCollisions:
+                self.OnEntityCollision(z)
+        if(len(self.ObjectCollisions)>0):
+            for z in self.ObjectCollisions:
+                self.OnObjectCollision(z)
+        self.Active(level)
+    def Active(self,level):
+        donothing = 0
     def Save(self,file):
         f = open(file,mode='w')
         f.write(str(self.center_x)+"?!?END...SYMBOL!?!"+str(self.center_y)+"?!?END...SYMBOL!?!"+str(DATA))
@@ -97,7 +131,12 @@ class CombatEntity(arcade.Sprite):
         while(c<len(self.EquipedItems)):
             self.EquipedItems[c].MoveScenes(From,To)
             c += 1
-                
-    def Update(self,level):
+    def update(self): 
+        self.Passive()
+    def Passive(self):
+        donothingvar = 0
+    def OnObjectCollision(self,obj):
+        donothing = 0
+    def OnEntityCollision(self,ent):
         donothing = 0
     
