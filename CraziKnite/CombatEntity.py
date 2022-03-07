@@ -62,7 +62,8 @@ class CombatEntity(arcade.Sprite):
     def Freeze(self):
         self.remove_from_sprite_lists()
     def Unfreeze(self,level):
-        level.scene.add_sprite("NPC", self)
+        level.npc_list.append(self)
+        self.LVL = level
     #Animation:
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
@@ -133,6 +134,7 @@ class CombatEntity(arcade.Sprite):
             c += 1
     def update(self): 
         self.Passive()
+        self.Update(self.LVL)
     def Passive(self):
         donothingvar = 0
     def OnObjectCollision(self,obj):

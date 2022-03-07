@@ -411,21 +411,25 @@ class Level(arcade.View):
 
                # Update Animations
       #  print("LEEEEEEE")
-        self.scene.update_animation(
-            delta_time,
-            [
-                LAYER_NAME_BACKDROP,
-                LAYER_NAME_NPC,
-                LAYER_NAME_MOBILE,
-                LAYER_NAME_PLAYER,
-            ],
-        )
+       # self.scene.update_animation(
+       ##     delta_time,
+        #    [
+       #         LAYER_NAME_BACKDROP,
+        #        LAYER_NAME_NPC,
+        #        LAYER_NAME_MOBILE,
+        #        LAYER_NAME_PLAYER,
+       #     ],
+       # )
+        self.scene.update_animation([self.backdrop_list,
+                                     self.mobile_list,
+                                     self.npc_list,
+                                     self.player_list])
      #   print("KEEEEEEEE")
 
         # Update moving platforms, enemies, and bullets
-        self.scene.update(
-            [LAYER_NAME_NPC, LAYER_NAME_PLAYER, LAYER_NAME_MOBILE]
-        )
+        self.scene.update([self.mobile_list,
+                                     self.npc_list,
+                                     self.player_list])
       #  print("XEEEEEEE")
           #  self.scene.update(self.INVEN)
         # See if the enemy hit a boundary and needs to reverse direction.

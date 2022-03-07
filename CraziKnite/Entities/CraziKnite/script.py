@@ -59,5 +59,8 @@ class entity(CombatEntity.CombatEntity):
                     obj.PickUp = False
         except:
             donothingvar = 0
+    def Unfreeze(self,lvl):
+        self.LVL = lvl
+        lvl.player_list.append(self)
 
         
