@@ -16,8 +16,8 @@ SCREEN_HEIGHT = 1000
 SCREEN_TITLE = "CraziKnite"
 
 # Movement speed of player, in pixels per frame
-GRAVITY = 0.5
-PLAYER_JUMP_SPEED = 10
+GRAVITY = 0.7
+PLAYER_JUMP_SPEED = 20
 
 # How many pixels to keep as a minimum margin between the character
 # and the edge of the screen.
@@ -32,7 +32,7 @@ TILE_SCALING = 2
 RIGHT_FACING = 0
 LEFT_FACING = 1
 
-PLAYER_MOVEMENT_SPEED = 1.5
+PLAYER_MOVEMENT_SPEED = 3
 
 DATA_FILE = "gamedata"
 
@@ -159,22 +159,30 @@ class Level(arcade.View):
 
         # Load in TileMap
         self.tile_map = arcade.load_tilemap(map_name, TILE_SCALING, layer_options)
+        tile_map = self.tile_map
 
+        self.immobile_list = tile_map.sprite_lists["IMMOBILE"]
+        self.climbable_list = tile_map.sprite_lists["CLIMBABLE"]
+        self.backdrop_list = tile_map.sprite_lists["BACKDROP"]
+        self.mobile_list = tile_map.sprite_lists["MOBILE"]
+        self.npc_list = tile_map.sprite_lists["NPC"]
+        self.player_list = arcade.SpriteList()
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
-
+        
 
         #player
         self.player_sprite = EntityManager.EntityManager.get("CraziKnite")
         self.player_sprite.center_x = 10
         self.player_sprite.center_y = 1000
-        self.scene.add_sprite(LAYER_NAME_PLAYER, self.player_sprite)
+        self.player_sprite.Unfreeze(self)
 
         slashy = ItemManager.ItemManager.get("Slashy")
-        slashy.center_x = 100
+        slashy.center_x = 0
         slashy.center_y = 1100
-        print('YEEE')
+        slashy.Unfreeze(self)
+       # print('YEEE')
         #self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
         main_path = "LevelData/"+self.LVname[:-5]
      #   files = listdir(main_path)
@@ -222,7 +230,7 @@ class Level(arcade.View):
             arcade.set_background_color(self.tile_map.background_color)
 
         # Create the 'physics engine'
-        print("BEEEE")
+     #   print("BEEEE")
         self.physics_engine = arcade.PhysicsEnginePlatformer(
             self.player_sprite,
             platforms=self.scene[LAYER_NAME_MOBILE],
@@ -230,7 +238,7 @@ class Level(arcade.View):
             ladders=self.scene[LAYER_NAME_CLIMBABLE],
             walls=self.scene[LAYER_NAME_IMMOBILE]
         )
-        print("ZEEEEE")
+      #  print("ZEEEEE")
 
     def on_draw(self):
         """Render the screen."""
@@ -240,9 +248,14 @@ class Level(arcade.View):
 
         # Activate the game camera
         self.camera.use()
-
+    
         # Draw our Scene
-        self.scene.draw()
+        self.immobile_list.draw()
+        self.backdrop_list.draw()
+        self.climbable_list.draw()
+        self.mobile_list.draw()
+        self.npc_list.draw()
+        self.player_list.draw()
 
         # Activate the GUI camera before drawing GUI elements
         self.gui_camera.use()
@@ -268,7 +281,7 @@ class Level(arcade.View):
                 and not self.jump_needs_reset
             ):
                 self.player_sprite.change_y = PLAYER_JUMP_SPEED
-                print("jump!")
+                #print("jump!")
                 self.jump_needs_reset = True
                  #arcade.play_sound(self.jump_sound)
         elif self.down_pressed and not self.up_pressed and not self.INV_OPEN:
@@ -309,7 +322,7 @@ class Level(arcade.View):
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
-        print("keypress!!!")
+       # print("keypress!!!")
         if key == arcade.key.UP:# or key == arcade.key.W:
             self.up_pressed = True
         elif key == arcade.key.DOWN:# or key == arcade.key.S:
@@ -379,7 +392,7 @@ class Level(arcade.View):
     def on_update(self, delta_time):
         """Movement and game logic"""
 
-        print("PREEEE")
+     #   print("PREEEE")
         # Move the player with the physics engine
         self.physics_engine.update()
 
@@ -397,23 +410,23 @@ class Level(arcade.View):
             self.process_keychange()
 
                # Update Animations
-        print("LEEEEEEE")
+      #  print("LEEEEEEE")
         self.scene.update_animation(
             delta_time,
             [
                 LAYER_NAME_BACKDROP,
                 LAYER_NAME_NPC,
                 LAYER_NAME_MOBILE,
-                LAYER_NAME_PLAYER
+                LAYER_NAME_PLAYER,
             ],
         )
-        print("KEEEEEEEE")
+     #   print("KEEEEEEEE")
 
         # Update moving platforms, enemies, and bullets
         self.scene.update(
             [LAYER_NAME_NPC, LAYER_NAME_PLAYER, LAYER_NAME_MOBILE]
         )
-        print("XEEEEEEE")
+      #  print("XEEEEEEE")
           #  self.scene.update(self.INVEN)
         # See if the enemy hit a boundary and needs to reverse direction.
     #    for npc in self.scene[LAYER_NAME_NPC]:
