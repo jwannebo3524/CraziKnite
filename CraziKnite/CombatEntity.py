@@ -64,6 +64,7 @@ class CombatEntity(arcade.Sprite):
     def Unfreeze(self,level):
         level.npc_list.append(self)
         self.LVL = level
+        self.INIT(level)
     #Animation:
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
@@ -92,31 +93,6 @@ class CombatEntity(arcade.Sprite):
                 self.IntervalCounter = 0
                 self.cur_animation = "Idle"
     def Update(self,level):
-        if(self.EntityCollisionTrigger):
-            self.EntityCollisions = arcade.check_for_collision_with_lists(
-                self,
-                [
-                    level.scene["NPC"],
-                    level.scene["PLAYER"],
-                ],
-            )
-        else:
-            self.EntityCollisions = []
-        if(self.ObjectCollisionTrigger):
-            self.ObjectCollisions = arcade.check_for_collision_with_lists(
-                self,
-                [
-                    level.scene["MOBILE"],
-                ],
-            )
-        else:
-            self.ObjectCollisions = []
-        if(len(self.EntityCollisions)>0):
-            for z in self.EntityCollisions:
-                self.OnEntityCollision(z)
-        if(len(self.ObjectCollisions)>0):
-            for z in self.ObjectCollisions:
-                self.OnObjectCollision(z)
         self.Active(level)
     def Active(self,level):
         donothing = 0
@@ -140,5 +116,7 @@ class CombatEntity(arcade.Sprite):
     def OnObjectCollision(self,obj):
         donothing = 0
     def OnEntityCollision(self,ent):
+        donothing = 0
+    def INIT(self,level):
         donothing = 0
     

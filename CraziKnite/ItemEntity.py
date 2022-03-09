@@ -50,48 +50,31 @@ class Item(arcade.Sprite):
         self.InLevel = ""
         self.GAMEFILEID = ""
         self.HASHID = 0
+        self.IntervalCounter = 0
+        self.Delay = 0
+        self.loop_animation = False
     def Freeze(self):
         self.remove_from_sprite_lists()
     def Unfreeze(self,level):
         level.mobile_list.append(self)
         self.LVL = level
     def SetAttatched(self,attached):
-        self.Attached = attached
+        self.Attatched = attached
+        print("EEEEEEEEEE")
     def update(self): 
         try:
-            d = (self.Attached.facing_direction-0.5)*2
-            self.center_x = self.Attached.center_x + (d*self.offsetX*self.Attatched.RadXMod)
-            self.center_y = self.Attached.center_y + (d*self.offsetY*self.Attatched.RadYMod)
+           # print("beep")
+            d = (self.Attatched.facing_direction-0.5)*2
+           # print("erp")
+            self.center_x = self.Attatched.center_x + (d*self.offsetX*self.Attatched.RadXMod)
+           # print("derp")
+            self.center_y = self.Attatched.center_y + (d*self.offsetY*self.Attatched.RadYMod)
+            #print("blep")
         except:
             donothingvar = 0
         self.Passive()
         self.Update(self.LVL)
     def Update(self,level):
-        if(self.EntityCollisionTrigger):
-            self.EntityCollisions = arcade.check_for_collision_with_lists(
-                self,
-                [
-                    level.scene["NPC"],
-                    level.scene["PLAYER"],
-                ],
-            )
-        else:
-            self.EntityCollisions = []
-        if(self.ObjectCollisionTrigger):
-            self.ObjectCollisions = arcade.check_for_collision_with_lists(
-                self,
-                [
-                    level.scene["MOBILE"],
-                ],
-            )
-        else:
-            self.EntityCollisions = []
-        if(len(self.EntityCollisions)>0):
-            for z in self.EntityCollisions:
-                self.OnEntityCollision(z)
-        if(len(self.ObjectCollisions)>0):
-            for z in self.ObjectCollisions:
-                self.OnObjectCollision(z)
         self.Active(level)
     def Passive(self): 
         donothingvar = 0
@@ -130,7 +113,7 @@ class Item(arcade.Sprite):
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
             self.cur_animation = str(state)
-            self.cur_texture = 0
+            self.cur_texture = 1
     def update_animation(self,delta_time):
         at = self.cur_animation+str(self.cur_texture)
         if(at in self.Names):
@@ -141,7 +124,7 @@ class Item(arcade.Sprite):
                 self.IntervalCounter = 0
         else:
             if(self.loop_animation):
-                self.cur_texture = 0
+                self.cur_texture = 1
                 if(at in self.Names):
                     self.texture = self.Textures[self.Names.index(at)][self.facing_direction]
                     self.IntervalCounter += 1
@@ -149,7 +132,7 @@ class Item(arcade.Sprite):
                         self.cur_texture += 1
                         self.IntervalCounter = 0
             else:
-                self.cur_texture = 0
+                self.cur_texture = 1
                 self.IntervalCounter = 0
                 self.cur_animation = "Idle"
   #  def __eq__(self,other):

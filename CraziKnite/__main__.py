@@ -33,6 +33,9 @@ RIGHT_FACING = 0
 LEFT_FACING = 1
 
 PLAYER_MOVEMENT_SPEED = 3
+SPEED = 30000
+JUMP_SPEED = 30000
+JUMP_DECAY = 0.9
 
 DATA_FILE = "gamedata"
 
@@ -118,6 +121,10 @@ class Level(arcade.View):
         self.LVname = name
         self.MAP = name
     def setup(self):
+        self.Jumping = False
+        self.Force = 0
+        self.physics_engine = arcade.PymunkPhysicsEngine(damping=0.01,
+                                                         gravity=(0,-5000))
         self.INVENTORY = InventoryManager.InventoryManager()
         self.INVENTORY.SetupSlots()
         self.INV_OPEN = False
@@ -170,75 +177,85 @@ class Level(arcade.View):
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
         self.scene = arcade.Scene.from_tilemap(self.tile_map)
-        
+        self.physics_engine.add_sprite_list(self.immobile_list,
+                                            friction=0.2,
+                                            collision_type="immobile",
+                                            body_type=arcade.PymunkPhysicsEngine.STATIC)
 
         #player
         self.player_sprite = EntityManager.EntityManager.get("CraziKnite")
-        self.player_sprite.center_x = 10
+        self.player_sprite.center_x = 100
         self.player_sprite.center_y = 1000
         self.player_sprite.Unfreeze(self)
-
+        self.physics_engine.add_sprite(self.player_sprite,
+                                       friction=0.2,
+                                       mass=1,
+                                       moment=arcade.PymunkPhysicsEngine.MOMENT_INF,
+                                       collision_type="player",
+                                       max_horizontal_velocity=1000,
+                                       max_vertical_velocity=1000)
         slashy = ItemManager.ItemManager.get("Slashy")
-        slashy.center_x = 0
+        slashy.center_x = 300
         slashy.center_y = 1100
         slashy.Unfreeze(self)
        # print('YEEE')
         #self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
         main_path = "LevelData/"+self.LVname[:-5]
-     #   files = listdir(main_path)
-       # c = 0
-      #  while(c<len(files)):
-       #     inst = EntityManager.get(files[c])
-       #     inst.Load(main_path+"/"+files[c])
-        #    c += 1
+        self.physics_engine.add_sprite_list(self.mobile_list,
+                                            friction=0.2,
+                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
+                                            collision_type="mobile")
+        self.physics_engine.add_sprite_list(self.npc_list,
+                                            friction=0.2,
+                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
+                                           collision_type="npc")
 
-        # -- mobile
- #       Mobile_Layer = self.tile_map.object_lists[LAYER_NAME_MOBILE]
-#
-  #      for my_object in Mobile_Layer:
-   #         cartesian = self.tile_map.get_cartesian(
-    #            my_object.shape[0], my_object.shape[1]
-#            )
- #           obj_type = my_object.properties["type"]
- #           obj = EntityManager.EntityManager.get(obj_type)
-  #          obj.init()
-  #          obj.center_x = cartesian[0]
-  #          obj.center_y = cartesian[1]
+
+        #         Loading functions:
+
+        #load entities
+        f = open(main_path+"/entity_list.txt")
+        z = f.read()
+        f.close()
+        print("Z:" + z)
+        if(len(z)>1):
+            Entity_List = ",".split(z[1:-1])
+        else:
+            Entity_List = []
+        c = 0
+        while(c<len(Entity_List)):
+            data = " ".split(Entity_List[c])
+            entity = EntityManager.EntityManager.get(str(data[0]))
+            entity.center_x = int(data[1])
+            entity.center_y = int(data[2])
+            entity.ID = str(data[3])
+            entity.Unfreeze(self)
+            c += 1
+
+        #load items
+        f = open(main_path+"/item_list.txt")
+        z = f.read()
+        f.close()
+        if(len(z)>1):
+            Entity_List = ",".split(z[1:-1])
+        else:
+            Entity_List = []
+        c = 0
+        while(c<len(Entity_List)):
+            data = " ".split(Entity_List[c])
+            entity = ItemManager.ItemManager.get(str(data[0]))
+            entity.center_x = int(data[1])
+            entity.center_y = int(data[2])
+            entity.ID = str(data[3])
+            entity.Unfreeze(self)
+            c += 1
             
-  #          self.scene.add_sprite(LAYER_NAME_MOBILE, obj)
-
-        # -- NPC
- #       NPC_Layer = self.tile_map.object_lists[LAYER_NAME_NPC]
-#
- #       for my_object in NPC:
-  #          cartesian = self.tile_map.get_cartesian(
-   #             my_object.shape[0], my_object.shape[1]
-   #         )
-   #         obj_type = my_object.properties["type"]
-   #         obj = EntityManager.EntityManager.get(obj_type)
-    #        obj.init()
-    #        obj.center_x = cartesian[0]
-   #         obj.center_y = cartesian[1]
-            
-    #        self.scene.add_sprite(LAYER_NAME_NPC, obj)
-
-
-
         # --- Other stuff
         # Set the background color
         if self.tile_map.background_color:
             arcade.set_background_color(self.tile_map.background_color)
+            
 
-        # Create the 'physics engine'
-     #   print("BEEEE")
-        self.physics_engine = arcade.PhysicsEnginePlatformer(
-            self.player_sprite,
-            platforms=self.scene[LAYER_NAME_MOBILE],
-            gravity_constant=GRAVITY,
-            ladders=self.scene[LAYER_NAME_CLIMBABLE],
-            walls=self.scene[LAYER_NAME_IMMOBILE]
-        )
-      #  print("ZEEEEE")
 
     def on_draw(self):
         """Render the screen."""
@@ -273,52 +290,42 @@ class Level(arcade.View):
         Called when we change a key up/down or we move on/off a ladder.
         """
         # Process up/down
-        if self.up_pressed and not self.down_pressed and not self.INV_OPEN:
-            if self.physics_engine.is_on_ladder():
-                self.player_sprite.change_y = PLAYER_MOVEMENT_SPEED
-            elif (
-                self.physics_engine.can_jump(y_distance=10)
+        if self.up_pressed and not self.down_pressed:
+                if(self.Jumping):
+                    self.Force = self.Force*JUMP_DECAY
+                    self.physics_engine.apply_force(self.player_sprite, (0,self.Force))
+                    if(self.Force<1000):
+                        self.Force = 0
+                        self.Jumping = False
+                if (
+                self.physics_engine.is_on_ground(self.player_sprite)
                 and not self.jump_needs_reset
             ):
-                self.player_sprite.change_y = PLAYER_JUMP_SPEED
+                    self.physics_engine.apply_force(self.player_sprite, (0,JUMP_SPEED))
                 #print("jump!")
-                self.jump_needs_reset = True
+                    self.jump_needs_reset = True
                  #arcade.play_sound(self.jump_sound)
-        elif self.down_pressed and not self.up_pressed and not self.INV_OPEN:
-            if self.physics_engine.is_on_ladder():
-                self.player_sprite.change_y = -PLAYER_MOVEMENT_SPEED
+                    self.Jumping = True
+                    self.Force = JUMP_SPEED
 
         # Process up/down when on a ladder and no movement
-        if self.physics_engine.is_on_ladder():
-            if not self.up_pressed and not self.down_pressed:
-                self.player_sprite.change_y = 0
-            elif self.up_pressed and self.down_pressed:
-                self.player_sprite.change_y = 0
-        if self.right_pressed and self.INV_OPEN:
-            self.INVENTORY.FlipRight(self)
-        if self.left_pressed and self.INV_OPEN:
-            self.INVENTORY.FlipLeft(self)
         # Process left/right
         if self.right_pressed and not self.left_pressed and not self.INV_OPEN:
             self.player_sprite.SetState("Moving")
             self.player_sprite.facing_direction = 0
-            self.player_sprite.change_x = PLAYER_MOVEMENT_SPEED
+            self.physics_engine.apply_force(self.player_sprite, (SPEED,0))
+            self.physics_engine.set_friction(self.player_sprite, 0.0)
         elif self.left_pressed and not self.right_pressed and not self.INV_OPEN:
             self.player_sprite.SetState("Moving")
             self.player_sprite.facing_direction = 1
-            self.player_sprite.change_x = -PLAYER_MOVEMENT_SPEED
+            self.physics_engine.apply_force(self.player_sprite, (-SPEED,0))
+            self.physics_engine.set_friction(self.player_sprite, 0.0)
         else:
             self.player_sprite.change_x = 0
             self.player_sprite.SetState("Idle")
-
+            self.physics_engine.set_friction(self.player_sprite, 1.0)
         #_______________________________
-        if ('e' in self.KeyPresses):
-            self.INVENTORY.OpenInventory(self)
-            self.INV_OPEN = True
-        else:
-            if(self.INV_OPEN):
-                self.INVENTORY.CloseInventory(self)
-                self.INV_OPEN = False
+
 
     def on_key_press(self, key, modifiers):
         """Called whenever a key is pressed."""
@@ -344,6 +351,8 @@ class Level(arcade.View):
             self.KeyPresses.append("s")
         elif key == arcade.key.E:
             self.KeyPresses.append("e")
+        elif key == arcade.key.D:
+            self.KeyPresses.append("d")
         
 
         self.process_keychange()
@@ -373,6 +382,8 @@ class Level(arcade.View):
             self.KeyPresses.pop(self.KeyPresses.index("a"))
         elif key == arcade.key.E:
             self.KeyPresses.pop(self.KeyPresses.index("e"))
+        elif key == arcade.key.D:
+            self.KeyPresses.pop(self.KeyPresses.index("d"))
 
         self.process_keychange()
 
@@ -394,20 +405,9 @@ class Level(arcade.View):
 
      #   print("PREEEE")
         # Move the player with the physics engine
-        self.physics_engine.update()
+        self.physics_engine.step()
+        self.process_keychange()
 
-        # Update animations
-        if self.physics_engine.can_jump():
-            self.player_sprite.can_jump = False
-        else:
-            self.player_sprite.can_jump = True
-
-        if self.physics_engine.is_on_ladder() and not self.physics_engine.can_jump():
-            self.player_sprite.is_on_ladder = True
-            self.process_keychange()
-        else:
-            self.player_sprite.is_on_ladder = False
-            self.process_keychange()
 
                # Update Animations
       #  print("LEEEEEEE")
@@ -427,9 +427,9 @@ class Level(arcade.View):
      #   print("KEEEEEEEE")
 
         # Update moving platforms, enemies, and bullets
-        self.scene.update([self.mobile_list,
-                                     self.npc_list,
-                                     self.player_list])
+    #    self.scene.update([self.mobile_list,
+       #                              self.npc_list,
+       #                              self.player_list])
       #  print("XEEEEEEE")
           #  self.scene.update(self.INVEN)
         # See if the enemy hit a boundary and needs to reverse direction.
@@ -437,7 +437,22 @@ class Level(arcade.View):
     ##        npc.update(self)
     #    for mobile in self.scene[LAYER_NAME_MOBILE]:
     #        mobile.update(self)
-        self.player_sprite.Update(self)
+        c = 0
+        while(c<len(self.mobile_list)):
+            try:
+                self.mobile_list[c].update_animation(delta_time)
+            except:
+                pass
+            c += 1
+        self.player_sprite.update_animation(delta_time)
+        c = 0
+        while(c<len(self.mobile_list)):
+            try:
+                self.mobile_list[c].update()
+            except:
+                pass
+            c += 1
+        self.player_sprite.update()
         # Position the camera
         self.center_camera_to_player()
         

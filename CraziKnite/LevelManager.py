@@ -6,3 +6,4 @@ class LevelManager:
         if(isfile("LevelData/"+FROM+"/"+THING.GAMEFILEID)):
             os.remove("LevelData/"+FROM+"/"+THING.GAMEFILEID)
         THING.Save("LevelData/"+TO+"/"+THING.GAMEFILEID)
+    

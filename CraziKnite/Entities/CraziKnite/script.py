@@ -19,18 +19,21 @@ class entity(CombatEntity.CombatEntity):
         self.BodyArmor = None
         self.Charms = []
         self.Interacting = False
-    def ProcessKeychange(self,level):
+        self.RadXMod = 1
+        self.RadYMod = 0
+    def Active(self,level):
         if("d" in level.KeyPresses):
-            if(self.Interacting == False):
-                self.Interacting = True
-                self.ObjectCollisionTrigger = True
+            #print("ddddddddddddd")
+            self.Interacting = True
+            self.ObjectCollisionTrigger = True
         else:
-            if(self.Interacting == True):
-                self.Interacting = False
-                self.ObjectCollisionTrigger = False
-    def OnObjectCollision(self,obj):
+            self.Interacting = False
+            self.ObjectCollisionTrigger = False
+    def OnObjectCollision(self,player, mobile, _arbiter, _space, _data):
+       # print("collide")
+        obj = mobile
         try:
-            if(obj.PickUp):
+            if(obj.PickUp and self.Interacting):
                 if(obj.ItemType == "Head"):
                     if(self.HeadArmor):
                         self.HeadArmor.SetAttatched(None)
@@ -42,8 +45,8 @@ class entity(CombatEntity.CombatEntity):
                     self.HeadArmor = obj
                     obj.SetAttatched(self)
                     obj.PickUp = False
-                if(obj.ItemType == "Body"):
-                    if(self.BodyArmor):
+                elif(obj.ItemType == "Body"):
+                    if(not self.BodyArmor == None):
                         self.BodyArmor.SetAttatched(None)
                         self.BodyArmor.center_x = self.center_x + 5
                         self.BodyArmor.change_x = -5
@@ -62,5 +65,6 @@ class entity(CombatEntity.CombatEntity):
     def Unfreeze(self,lvl):
         self.LVL = lvl
         lvl.player_list.append(self)
+        lvl.physics_engine.add_collision_handler("player", "mobile", post_handler=self.OnObjectCollision)
 
         
