@@ -55,9 +55,14 @@ class Item(arcade.Sprite):
         self.loop_animation = False
     def Freeze(self):
         self.remove_from_sprite_lists()
+        try:
+            self.LVL.CallOnKeypress.pop(self.LVL.CallOnKeypress.index(self))
+        except:
+            pass
     def Unfreeze(self,level):
         level.mobile_list.append(self)
         self.LVL = level
+        
     def SetAttatched(self,attached):
         self.Attatched = attached
         print("EEEEEEEEEE")
