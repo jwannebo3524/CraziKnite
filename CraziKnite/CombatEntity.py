@@ -111,6 +111,13 @@ class CombatEntity(arcade.Sprite):
     def update(self): 
         self.Passive()
         self.Update(self.LVL)
+        c = 0
+        while(c<len(self.EquipedItems)):
+            self.EquipedItems[c].EquipedUpdate()
+            c += 1
+    def GetItem(self,item):
+        z = self.EquipedItems.index(item)
+        return self.EquipedItems[z]
     def Passive(self):
         donothingvar = 0
     def OnObjectCollision(self,obj):
