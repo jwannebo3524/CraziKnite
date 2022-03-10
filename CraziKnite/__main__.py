@@ -120,6 +120,8 @@ class Level(arcade.View):
 
         self.LVname = name
         self.MAP = name
+        self.CallOnKeypress = []
+        
     def setup(self):
         self.Jumping = False
         self.Force = 0
@@ -286,9 +288,7 @@ class Level(arcade.View):
         # self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def process_keychange(self):
-        """
-        Called when we change a key up/down or we move on/off a ladder.
-        """
+   
         # Process up/down
         if self.up_pressed and not self.down_pressed:
                 if(self.Jumping):
@@ -356,7 +356,10 @@ class Level(arcade.View):
         
 
         self.process_keychange()
-
+        c = 0
+        while(c<len(self.CallOnKeypress)):
+            self.CallOnKeyPress[c].OnKeypress()
+            c += 1
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
 
@@ -384,7 +387,10 @@ class Level(arcade.View):
             self.KeyPresses.pop(self.KeyPresses.index("e"))
         elif key == arcade.key.D:
             self.KeyPresses.pop(self.KeyPresses.index("d"))
-
+        c = 0
+        while(c<len(self.CallOnKeypress)):
+            self.CallOnKeyPress[c].OnKeypress()
+            c += 1
         self.process_keychange()
 
     def center_camera_to_player(self, speed=0.2):
