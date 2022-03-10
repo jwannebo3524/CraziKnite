@@ -114,7 +114,7 @@ class Item(arcade.Sprite):
     def OnKeyRelease(self,key):
         donothingvar = 0
     def AddKeyListener(self):
-        LVL.CallOnKeypress(self)
+        LVL.CallOnKeypress.append(self)
     #Animation:
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
