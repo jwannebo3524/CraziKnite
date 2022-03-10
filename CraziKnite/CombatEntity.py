@@ -61,6 +61,10 @@ class CombatEntity(arcade.Sprite):
         self.ObjectCollisions = []
     def Freeze(self):
         self.remove_from_sprite_lists()
+        try:
+            self.LVL.CallOnKeypress.pop(self.LVL.CallOnKeypress.index(self))
+        except:
+            pass
     def Unfreeze(self,level):
         level.npc_list.append(self)
         self.LVL = level
@@ -126,4 +130,10 @@ class CombatEntity(arcade.Sprite):
         donothing = 0
     def INIT(self,level):
         donothing = 0
+    def OnKeyPress(self):
+        donothing = 0
+    def OnKeyRelease(self):
+        donothing = 0
+    def AddKeyListener(self):
+        self.LVL.CallOnKeypress.append(self)
     
