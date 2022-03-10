@@ -107,8 +107,14 @@ class Item(arcade.Sprite):
         self.GAMEFILEID = file
     def MoveScenes(self,From,To):
         LevelManager.Move(self,From,To)
-        
-
+    def EquipedUpdate(self):
+        donotingvar = 0
+    def OnKeyPress(self,key):
+        donothingvar = 0
+    def OnKeyRelease(self,key):
+        donothingvar = 0
+    def AddKeyListener(self):
+        LVL.CallOnKeypress(self)
     #Animation:
     def SetState(self,state):
         if(not self.cur_animation == str(state)):    
