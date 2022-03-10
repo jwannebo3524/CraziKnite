@@ -358,7 +358,7 @@ class Level(arcade.View):
         self.process_keychange()
         c = 0
         while(c<len(self.CallOnKeypress)):
-            self.CallOnKeyPress[c].OnKeypress()
+            self.CallOnKeyPress[c].OnKeyPress()
             c += 1
     def on_key_release(self, key, modifiers):
         """Called when the user releases a key."""
@@ -389,7 +389,7 @@ class Level(arcade.View):
             self.KeyPresses.pop(self.KeyPresses.index("d"))
         c = 0
         while(c<len(self.CallOnKeypress)):
-            self.CallOnKeyPress[c].OnKeypress()
+            self.CallOnKeyPress[c].OnKeyRelease()
             c += 1
         self.process_keychange()
 
