@@ -123,6 +123,7 @@ class Level(arcade.View):
         self.CallOnKeypress = []
         
     def setup(self):
+        
         self.Jumping = False
         self.Force = 0
         self.physics_engine = arcade.PymunkPhysicsEngine(damping=0.01,
@@ -183,6 +184,10 @@ class Level(arcade.View):
                                             friction=0.2,
                                             collision_type="immobile",
                                             body_type=arcade.PymunkPhysicsEngine.STATIC)
+        self.physics_engine.add_sprite_list(self.climbable_list,
+                                            friction=20,
+                                            collision_type="immobile",
+                                            body_type=arcade.PymunkPhysicsEngine.STATIC)
 
         #player
         self.player_sprite = EntityManager.EntityManager.get("CraziKnite")
@@ -196,21 +201,14 @@ class Level(arcade.View):
                                        collision_type="player",
                                        max_horizontal_velocity=1000,
                                        max_vertical_velocity=1000)
-        slashy = ItemManager.ItemManager.get("Slashy")
+        slashy = ItemManager.ItemManager.get("Slashy") #TODO: remove
         slashy.center_x = 300
         slashy.center_y = 1100
         slashy.Unfreeze(self)
        # print('YEEE')
         #self.scene.add_sprite(LAYER_NAME_MOBILE, slashy)
         main_path = "LevelData/"+self.LVname[:-5]
-        self.physics_engine.add_sprite_list(self.mobile_list,
-                                            friction=0.2,
-                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
-                                            collision_type="mobile")
-        self.physics_engine.add_sprite_list(self.npc_list,
-                                            friction=0.2,
-                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
-                                           collision_type="npc")
+
 
 
         #         Loading functions:
@@ -221,12 +219,15 @@ class Level(arcade.View):
         f.close()
         print("Z:" + z)
         if(len(z)>1):
-            Entity_List = ",".split(z[1:-1])
+            Entity_List = z[1:-1].split(",")
         else:
             Entity_List = []
+        print(Entity_List)
+        print("bleep")
         c = 0
         while(c<len(Entity_List)):
-            data = " ".split(Entity_List[c])
+            data = Entity_List[c][1:-1].split(" ")
+            print(data)
             entity = EntityManager.EntityManager.get(str(data[0]))
             entity.center_x = int(data[1])
             entity.center_y = int(data[2])
@@ -239,26 +240,40 @@ class Level(arcade.View):
         z = f.read()
         f.close()
         if(len(z)>1):
-            Entity_List = ",".split(z[1:-1])
+            Entity_List = z[1:-1].split(",")
         else:
             Entity_List = []
         c = 0
         while(c<len(Entity_List)):
-            data = " ".split(Entity_List[c])
+            data = Entity_List[c].split(" ")
             entity = ItemManager.ItemManager.get(str(data[0]))
             entity.center_x = int(data[1])
             entity.center_y = int(data[2])
             entity.ID = str(data[3])
             entity.Unfreeze(self)
             c += 1
-            
+        
         # --- Other stuff
         # Set the background color
         if self.tile_map.background_color:
             arcade.set_background_color(self.tile_map.background_color)
-            
 
 
+        self.physics_engine.add_sprite_list(self.mobile_list,
+                                            friction=0.2,
+                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
+                                            collision_type="mobile")
+        self.physics_engine.add_sprite_list(self.npc_list,
+                                            friction=0.2,
+                                            moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
+                                           collision_type="npc")
+
+        self.physics_engine.add_collision_handler("npc", "mobile", post_handler=self.HandleCollision)
+        self.physics_engine.add_collision_handler("npc", "npc", post_handler=self.HandleCollision)
+        self.physics_engine.add_collision_handler("npc", "player", post_handler=self.HandleCollision)
+        #self.physics_engine.add_collision_handler("mobile", "player", post_handler=self.HandleCollision)
+        self.physics_engine.add_collision_handler("mobile", "npc", post_handler=self.HandleCollision)
+        self.physics_engine.add_collision_handler("mobile", "mobile", post_handler=self.HandleCollision)
     def on_draw(self):
         """Render the screen."""
 
@@ -281,11 +296,11 @@ class Level(arcade.View):
 
 
 
-        # Draw hit boxes.
-        # for wall in self.wall_list:
-        #     wall.draw_hit_box(arcade.color.BLACK, 3)
-        #
-        # self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+         #Draw hit boxes.
+       # for mobile in self.mobile_list:
+       #     mobile.draw_hit_box(arcade.color.GREEN, 3)
+        
+       # self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def process_keychange(self):
    
@@ -443,6 +458,7 @@ class Level(arcade.View):
     ##        npc.update(self)
     #    for mobile in self.scene[LAYER_NAME_MOBILE]:
     #        mobile.update(self)
+        #Animation - Mobile
         c = 0
         while(c<len(self.mobile_list)):
             try:
@@ -450,7 +466,19 @@ class Level(arcade.View):
             except:
                 pass
             c += 1
+
+        #Animation - Npc
+        c = 0
+        while(c<len(self.npc_list)):
+            try:
+                self.npc_list[c].update_animation(delta_time)
+            except:
+                pass
+            c += 1
+        #Animation - Player
         self.player_sprite.update_animation(delta_time)
+
+        #main- mobile
         c = 0
         while(c<len(self.mobile_list)):
             try:
@@ -458,11 +486,28 @@ class Level(arcade.View):
             except:
                 pass
             c += 1
+        #main - npc
+        c = 0
+        while(c<len(self.npc_list)):
+            try:
+                self.npc_list[c].update()
+            except:
+                pass
+            c += 1
+        #main- player
         self.player_sprite.update()
         # Position the camera
         self.center_camera_to_player()
-        
-
+    def HandleCollision(self,Obj1,Obj2, _arbiter, _space, _data):
+        try:
+            Obj1.OnCollision(Obj2)
+        except:
+            pass
+        try:
+            Obj2.OnCollision(Obj1)
+        except:
+            pass
+    
 
 def main():
     """Main function"""

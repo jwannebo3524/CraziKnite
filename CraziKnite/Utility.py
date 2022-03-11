@@ -1,5 +1,5 @@
 import random
-def Damage(Entity,DmgVector,Modifier,Type = "Normal"):
+def Damage(Entity,DmgVector,Modifier,Type = "Normal"): #xdy + z [x,y,z]
     if(Entity.HP):
         if(Entity.AC):
             roll = random.randint(1,20)

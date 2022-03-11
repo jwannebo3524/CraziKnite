@@ -53,6 +53,7 @@ class Item(arcade.Sprite):
         self.IntervalCounter = 0
         self.Delay = 0
         self.loop_animation = False
+        self.LAYER = "MOBILE"
     def Freeze(self):
         self.remove_from_sprite_lists()
         try:

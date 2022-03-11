@@ -21,9 +21,10 @@ class entity(CombatEntity.CombatEntity):
         self.Interacting = False
         self.RadXMod = 1
         self.RadYMod = 0
+        self.LAYER = "PLAYER"
     def Active(self,level):
         if("d" in level.KeyPresses):
-            #print("ddddddddddddd")
+            print("ddddddddddddd")
             self.Interacting = True
             self.ObjectCollisionTrigger = True
         else:

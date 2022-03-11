@@ -59,9 +59,12 @@ class CombatEntity(arcade.Sprite):
         self.ObjectCollisionTrigger = False
         self.EntityCollisions = []
         self.ObjectCollisions = []
+        self.LAYER = "NPC"
     def Freeze(self):
         self.remove_from_sprite_lists()
         try:
+            self.LVL.npc_list.pop(self.LVL.npc_list.index(self))
+            print("poped!")
             self.LVL.CallOnKeypress.pop(self.LVL.CallOnKeypress.index(self))
         except:
             pass
@@ -75,6 +78,8 @@ class CombatEntity(arcade.Sprite):
             self.cur_animation = str(state)
             self.cur_texture = 1
             self.IntervalCounter = 0
+    def Do(self,state):
+        self.SetState(state)
     def update_animation(self,delta_time):
         at = self.cur_animation+str(self.cur_texture)
         if(at in self.Names):
@@ -119,6 +124,12 @@ class CombatEntity(arcade.Sprite):
         while(c<len(self.EquipedItems)):
             self.EquipedItems[c].EquipedUpdate()
             c += 1
+        if(self.HP<= 0):
+            self.OnDeath()
+    def OnDeath(self):
+        self.Freeze()
+        print("dead")
+        
     def GetItem(self,item):
         z = self.EquipedItems.index(item)
         return self.EquipedItems[z]
