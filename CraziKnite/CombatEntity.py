@@ -12,8 +12,8 @@ def load_texture_pair(filename):
 
 class CombatEntity(arcade.Sprite):
     def __init__(self,name,scale = 1):
-        super().__init__()
-
+        super().__init__(hit_box_algorithm = "Detailed")
+        self.Name = name
         # Default to facing right
         self.facing_direction = 0
 

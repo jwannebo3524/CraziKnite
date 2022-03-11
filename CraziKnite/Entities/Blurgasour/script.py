@@ -22,7 +22,7 @@ class entity(CombatEntity.CombatEntity):
         self.Interacting = False
         self.RadXMod = 5
         self.RadYMod = 5
-        self.LAYER = "PLAYER"
+        self.LAYER = "NPC"
         self.Range = 2000
         self.HitRange = 100
         self.Speed = 2000
@@ -45,6 +45,7 @@ class entity(CombatEntity.CombatEntity):
                 self.Charged = False
                 self.Timer = 50
                 Utility.Damage(level.player_sprite,[1,6,0])
+                print("DAMAGE :)")
             else:
                 self.Timer-= 1
                 if(self.Timer<0):

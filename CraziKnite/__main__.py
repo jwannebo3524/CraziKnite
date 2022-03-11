@@ -174,8 +174,8 @@ class Level(arcade.View):
         self.immobile_list = tile_map.sprite_lists["IMMOBILE"]
         self.climbable_list = tile_map.sprite_lists["CLIMBABLE"]
         self.backdrop_list = tile_map.sprite_lists["BACKDROP"]
-        self.mobile_list = tile_map.sprite_lists["MOBILE"]
-        self.npc_list = tile_map.sprite_lists["NPC"]
+        self.mobile_list = arcade.SpriteList()#tile_map.sprite_lists["MOBILE"]
+        self.npc_list = arcade.SpriteList()#tile_map.sprite_lists["NPC"]
         self.player_list = arcade.SpriteList()
         # Initiate New Scene with our TileMap, this will automatically add all layers
         # from the map as SpriteLists in the scene in the proper order.
@@ -268,9 +268,9 @@ class Level(arcade.View):
                                             moment_of_intertia=arcade.PymunkPhysicsEngine.MOMENT_INF,
                                            collision_type="npc")
 
-        self.physics_engine.add_collision_handler("npc", "mobile", post_handler=self.HandleCollision)
-        self.physics_engine.add_collision_handler("npc", "npc", post_handler=self.HandleCollision)
-        self.physics_engine.add_collision_handler("npc", "player", post_handler=self.HandleCollision)
+        #self.physics_engine.add_collision_handler("npc", "mobile", post_handler=self.HandleCollision)
+        #self.physics_engine.add_collision_handler("npc", "npc", post_handler=self.HandleCollision)
+        #self.physics_engine.add_collision_handler("npc", "player", post_handler=self.HandleCollision)
         #self.physics_engine.add_collision_handler("mobile", "player", post_handler=self.HandleCollision)
         self.physics_engine.add_collision_handler("mobile", "npc", post_handler=self.HandleCollision)
         self.physics_engine.add_collision_handler("mobile", "mobile", post_handler=self.HandleCollision)
@@ -297,10 +297,12 @@ class Level(arcade.View):
 
 
          #Draw hit boxes.
-       # for mobile in self.mobile_list:
-       #     mobile.draw_hit_box(arcade.color.GREEN, 3)
+        for mobile in self.mobile_list:
+            mobile.draw_hit_box(arcade.color.GREEN, 3)
+        for npc in self.npc_list:
+            npc.draw_hit_box(arcade.color.BLUE, 3)
         
-       # self.player_sprite.draw_hit_box(arcade.color.RED, 3)
+        self.player_sprite.draw_hit_box(arcade.color.RED, 3)
 
     def process_keychange(self):
    
@@ -499,14 +501,17 @@ class Level(arcade.View):
         # Position the camera
         self.center_camera_to_player()
     def HandleCollision(self,Obj1,Obj2, _arbiter, _space, _data):
-        try:
-            Obj1.OnCollision(Obj2)
-        except:
-            pass
-        try:
-            Obj2.OnCollision(Obj1)
-        except:
-            pass
+        if(Obj1.LAYER):
+            try:
+                Obj1.OnCollision(Obj2)
+            except:
+                print("1ERR1")
+        if(Obj2.LAYER):
+            try:
+                Obj2.OnCollision(Obj1)
+            except:
+                print("2ERR2")
+                pass
     
 
 def main():

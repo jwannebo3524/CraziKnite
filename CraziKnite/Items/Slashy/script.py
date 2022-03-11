@@ -4,7 +4,7 @@ import Utility
 class item(ItemEntity.Item):
     def __init__(self,Name):
         #print("beeep")
-        super().__init__(Name,scale = 4)
+        super().__init__(Name,scale = 7)
         self.Do("Grounded")
         self.loop_animation = True
         self.PickUp = True
@@ -12,7 +12,9 @@ class item(ItemEntity.Item):
         self.Slashing = False
         self.Charged = True
         self.Timer = 0
+        self.WasSlashing = False
     def Active(self,level):
+        self.WasSlashing = self.Slashing
         self.facing_direction = self.Attatched.facing_direction
         if(self.Attatched == level.player_sprite):
            # print("ready...")
@@ -39,8 +41,9 @@ class item(ItemEntity.Item):
     def OnCollision(self,obj):
         print("col")
         print(self.Slashing)
+        print(obj.Name)
         print(obj.LAYER)
-        if(self.Slashing == True and obj.LAYER == "NPC"):
+        if(self.Slashing == True and self.WasSlashing == False and obj.LAYER == "NPC"):
             Utility.Damage(obj,[2,6,0],2)
             print("DAMAGE!!!")
         #print(self.change_y)

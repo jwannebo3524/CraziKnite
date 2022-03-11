@@ -5,6 +5,7 @@ def Damage(Entity,DmgVector,Modifier,Type = "Normal"): #xdy + z [x,y,z]
             roll = random.randint(1,20)
             if(roll+Modifier>Entity.AC):
                 c = 0
+                Dmg = 0
                 while(c<DmgVector[0]):
                     Dmg += random.randint(1,DmgVector[1])
                     c += 1
@@ -20,6 +21,7 @@ def Damage(Entity,DmgVector,Modifier,Type = "Normal"): #xdy + z [x,y,z]
                 Entity.HP -= Dmg
         else:
             c = 0
+            Dmg = 0
             while(c<DmgVector[0]):
                 Dmg += random.randint(1,DmgVector[1])
                 c += 1

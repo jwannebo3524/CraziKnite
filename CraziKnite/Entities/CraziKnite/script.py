@@ -67,5 +67,6 @@ class entity(CombatEntity.CombatEntity):
         self.LVL = lvl
         lvl.player_list.append(self)
         lvl.physics_engine.add_collision_handler("player", "mobile", post_handler=self.OnObjectCollision)
-
+    def OnDeath(self):
+        self.LVL.setup()
         

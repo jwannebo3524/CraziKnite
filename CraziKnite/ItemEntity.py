@@ -26,6 +26,7 @@ class Item(arcade.Sprite):
         self.cur_texture = 0
         self.scale = scale
         self.NAME = name
+        self.Name = name
         main_path = "Items/"+name+"/t"
         onlyfiles = listdir(main_path)
         c = 0
